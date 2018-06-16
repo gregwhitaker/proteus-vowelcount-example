@@ -3,7 +3,7 @@ plugins {
     id 'application'
 }
 
-mainClassName = 'proteus.example.vowelcount.service.isvowel.Main'
+mainClassName = 'proteus.example.service.isvowel.Main'
 sourceCompatibility = 1.8
 
 dependencies {

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package proteus.example.vowelcount.service.isvowel;
+package proteus.example.service.isvowel;
 
-option java_package = "proteus.example.vowelcount.service.isvowel";
+option java_package = "proteus.example.service.isvowel";
 option java_outer_classname = "IsVowelServiceProto";
 option java_multiple_files = true;
 
