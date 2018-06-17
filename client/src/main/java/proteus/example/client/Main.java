@@ -23,6 +23,7 @@ import proteus.example.service.vowelcount.VowelCountServiceClient;
 
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Client that sends random strings to the VowelCount service to have the number
@@ -55,7 +56,7 @@ public class Main {
             @Override
             public void request(long n) {
                 VowelCountRequest request = VowelCountRequest.newBuilder()
-                        .setMessage(RandomString.nextString())
+                        .setMessage(RandomString.next(10, ThreadLocalRandom.current()))
                         .build();
 
                 s.onNext(request);

@@ -15,9 +15,33 @@
  */
 package proteus.example.client;
 
+import java.util.Random;
+
+/**
+ * Generates random alphabetic strings.
+ */
 public class RandomString {
 
-    public static String nextString() {
-        return "";
+    private static final char[] ALPHAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+
+    /**
+     * Creates a random string of specified length containing only alphabetic characters.
+     *
+     * @param length length of the string
+     * @param random random source
+     * @return string of specified length containing only alphabetic characters
+     */
+    public static String next(int length, Random random) {
+        if (length < 1) {
+            throw new IllegalArgumentException("length must be greater than or equal to 1");
+        }
+
+        final char[] buffer = new char[length];
+
+        for (int i = 0; i < buffer.length; i++) {
+            buffer[i] = ALPHAS[random.nextInt(ALPHAS.length)];
+        }
+
+        return new String(buffer);
     }
 }
