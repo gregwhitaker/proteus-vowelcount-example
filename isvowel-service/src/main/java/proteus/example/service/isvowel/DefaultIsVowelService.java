@@ -27,7 +27,11 @@ import reactor.util.context.Context;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
+/**
+ * Service that determines whether or not a character is a vowel.
+ */
 public class DefaultIsVowelService implements IsVowelService {
 
     private final Set<String> VOWELS = new HashSet<>();
@@ -42,12 +46,8 @@ public class DefaultIsVowelService implements IsVowelService {
 
     @Override
     public Mono<IsVowelResponse> isVowel(IsVowelRequest message, ByteBuf metadata) {
-        return Mono.create(isVowelResponseMonoSink -> {
-            IsVowelResponse response = IsVowelResponse.newBuilder()
-                    .setIsVowel(VOWELS.contains(message.getCharacter()))
-                    .build();
-
-            isVowelResponseMonoSink.success(response);
-        });
+        return Mono.fromSupplier(() -> IsVowelResponse.newBuilder()
+                .setIsVowel(VOWELS.contains(message.getCharacter()))
+                .build());
     }
 }
