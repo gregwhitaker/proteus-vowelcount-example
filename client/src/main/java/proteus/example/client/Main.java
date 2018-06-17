@@ -18,8 +18,11 @@ package proteus.example.client;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.netifi.proteus.Proteus;
 import org.reactivestreams.Subscription;
+import proteus.example.service.vowelcount.VowelCountRequest;
 import proteus.example.service.vowelcount.VowelCountResponse;
+import proteus.example.service.vowelcount.VowelCountServiceClient;
 
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -45,17 +48,24 @@ public class Main {
 
         CountDownLatch latch = new CountDownLatch(100);
 
-        // Stream random strings to the vowelcount service for processing
+        // Stream random strings load-balanced across all vowelcount service instances for processing
         proteus.group("proteus.example.service.vowelcount")
                 .requestChannel(s -> s.onSubscribe(new Subscription() {
                     @Override
                     public void request(long n) {
-
+                        for (long cnt = 1; cnt <= n; cnt++) {
+                            VowelCountRequest.newBuilder()
+                                    .setMessage(RandomString.nextString())
+                                    .build();
+                        }
                     }
 
                     @Override
                     public void cancel() {
-
+                        // Aborting the latch early because the subscriber cancelled the request
+                        while(latch.getCount() > 0) {
+                            latch.countDown();
+                        }
                     }
                 }))
                 .onBackpressureDrop()
