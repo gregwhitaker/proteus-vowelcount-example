@@ -27,12 +27,12 @@ public class Main {
 
         // Define connection to the Proteus Broker
         final Proteus proteus = Proteus.builder()
-                .group("proteus.example.service.vowelcount")
-                .destination(destination)
-                .accessKey(7685465987873703191L)
-                .accessToken("")
-                .host("localhost")
-                .port(8001)
+                .group("proteus.example.service.vowelcount")    // Name of this service's group
+                .destination(destination)                       // Name of this service instance
+                .accessKey(7685465987873703191L)                // Access key for connecting to the Proteus Broker
+                .accessToken("")                                // Access token for connecting to the Proteus Broker
+                .host("localhost")                              // Proteus Broker's host
+                .port(8001)                                     // Proteus Broker's port
                 .build();
 
         // Start the VowelCount Service
