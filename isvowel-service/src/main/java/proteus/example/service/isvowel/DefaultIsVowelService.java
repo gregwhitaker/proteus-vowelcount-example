@@ -16,12 +16,38 @@
 package proteus.example.service.isvowel;
 
 import io.netty.buffer.ByteBuf;
+import javafx.geometry.VPos;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Signal;
+import reactor.core.publisher.SignalType;
+import reactor.util.context.Context;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class DefaultIsVowelService implements IsVowelService {
 
+    private final Set<String> VOWELS = new HashSet<>();
+
+    public DefaultIsVowelService() {
+        VOWELS.add("A");
+        VOWELS.add("E");
+        VOWELS.add("I");
+        VOWELS.add("O");
+        VOWELS.add("U");
+    }
+
     @Override
     public Mono<IsVowelResponse> isVowel(IsVowelRequest message, ByteBuf metadata) {
-        return null;
+        return Mono.create(isVowelResponseMonoSink -> {
+            IsVowelResponse response = IsVowelResponse.newBuilder()
+                    .setIsVowel(VOWELS.contains(message.getCharacter()))
+                    .build();
+
+            isVowelResponseMonoSink.success(response);
+        });
     }
 }
