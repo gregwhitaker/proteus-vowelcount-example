@@ -15,14 +15,12 @@
  */
 package proteus.example.client;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import io.netifi.proteus.Proteus;
+import io.netifi.proteus.rsocket.ProteusSocket;
 import org.reactivestreams.Subscription;
 import proteus.example.service.vowelcount.VowelCountRequest;
-import proteus.example.service.vowelcount.VowelCountResponse;
 import proteus.example.service.vowelcount.VowelCountServiceClient;
 
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -46,41 +44,37 @@ public class Main {
                 .port(8001)                         // Proteus Broker's port
                 .build();
 
+        ProteusSocket conn = proteus.group("proteus.example.service.vowelcount");
+
         CountDownLatch latch = new CountDownLatch(100);
 
-        // Stream random strings load-balanced across all vowelcount service instances for processing
-        proteus.group("proteus.example.service.vowelcount")
-                .requestChannel(s -> s.onSubscribe(new Subscription() {
-                    @Override
-                    public void request(long n) {
-                        for (long cnt = 1; cnt <= n; cnt++) {
-                            VowelCountRequest.newBuilder()
-                                    .setMessage(RandomString.nextString())
-                                    .build();
-                        }
-                    }
+        // Send a stream of random strings, load-balanced across all instances, to VowelCount service for processing.
+        VowelCountServiceClient client = new VowelCountServiceClient(conn);
+        client.countVowels(s -> s.onSubscribe(new Subscription() {
+            @Override
+            public void request(long n) {
+                VowelCountRequest request = VowelCountRequest.newBuilder()
+                        .setMessage(RandomString.nextString())
+                        .build();
 
-                    @Override
-                    public void cancel() {
-                        // Aborting the latch early because the subscriber cancelled the request
-                        while(latch.getCount() > 0) {
-                            latch.countDown();
-                        }
-                    }
-                }))
-                .onBackpressureDrop()
-                .doOnNext(payload -> {
-                    // Receive response from vowelcount service with the total number of vowels counted
-                    try {
-                        VowelCountResponse response = VowelCountResponse.parseFrom(payload.getData());
-                        System.out.println("Total Vowels Counted: " + response.getVowelCnt());
-                    } catch (InvalidProtocolBufferException e) {
-                        e.printStackTrace();
-                    } finally {
-                        latch.countDown();
-                    }
-                })
-                .subscribe();
+                s.onNext(request);
+            }
+
+            @Override
+            public void cancel() {
+                // Aborting the latch early because the subscriber cancelled the request
+                while(latch.getCount() > 0) {
+                    latch.countDown();
+                }
+            }
+        }))
+        .onBackpressureDrop()
+        .doOnNext(response -> {
+            // Receive response from vowelcount service with the total number of vowels counted
+            System.out.println("Total Vowels Counted: " + response.getVowelCnt());
+            latch.countDown();
+        })
+        .subscribe();
 
         latch.await();
     }
