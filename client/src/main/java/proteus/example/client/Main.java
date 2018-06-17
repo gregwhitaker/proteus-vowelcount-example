@@ -15,9 +15,65 @@
  */
 package proteus.example.client;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+import io.netifi.proteus.Proteus;
+import org.reactivestreams.Subscription;
+import proteus.example.service.vowelcount.VowelCountResponse;
+
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+
+/**
+ * Client that sends random strings to the VowelCount service to have the number
+ * of vowels in the string tallied.
+ */
 public class Main {
 
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
+        // Creating a name for the client
+        final String destination = "democlient-" + UUID.randomUUID().toString();
 
+        // Define connection to the Proteus Broker
+        final Proteus proteus = Proteus.builder()
+                .group("proteus.example.client")    // Name of this client's group
+                .destination(destination)           // Name of this client
+                .accessKey(7685465987873703191L)    // Access key for connecting to Proteus Broker
+                .accessToken("")                    // Access token for connecting to Proteus Broker
+                .host("localhost")                  // Proteus Broker's host
+                .port(8001)                         // Proteus Broker's port
+                .build();
+
+        CountDownLatch latch = new CountDownLatch(100);
+
+        // Stream random strings to the vowelcount service for processing
+        proteus.group("proteus.example.service.vowelcount")
+                .requestChannel(s -> s.onSubscribe(new Subscription() {
+                    @Override
+                    public void request(long n) {
+
+                    }
+
+                    @Override
+                    public void cancel() {
+
+                    }
+                }))
+                .onBackpressureDrop()
+                .map(payload -> {
+                    // Receive response from vowelcount service with the total number of vowels counted
+                    try {
+                        VowelCountResponse response = VowelCountResponse.parseFrom(payload.getData());
+                        System.out.println("Total Vowels Counted: " + response.getVowelCnt());
+                    } catch (InvalidProtocolBufferException e) {
+                        e.printStackTrace();
+                    } finally {
+                        latch.countDown();
+                    }
+
+                    return null;
+                })
+                .subscribe();
+
+        latch.await();
     }
 }

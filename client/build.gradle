@@ -8,4 +8,6 @@ sourceCompatibility = 1.8
 
 dependencies {
     compile project(':vowelcount-idl')
+
+    compile "io.netifi.proteus:client:${proteusVersion}"
 }
