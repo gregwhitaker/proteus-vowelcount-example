@@ -16,6 +16,7 @@
 package proteus.example.service.vowelcount;
 
 import io.netifi.proteus.Proteus;
+import io.netifi.proteus.rsocket.ProteusSocket;
 
 import java.util.UUID;
 
@@ -35,8 +36,11 @@ public class Main {
                 .port(8001)                                     // Proteus Broker's port
                 .build();
 
+        // Create virtual connection to the IsVowel service group
+        ProteusSocket isVowelConn = proteus.group("proteus.example.service.isvowel");
+
         // Start the VowelCount Service
-        proteus.addService(new VowelCountServiceServer(new DefaultVowelCountService()));
+        proteus.addService(new VowelCountServiceServer(new DefaultVowelCountService(isVowelConn)));
 
         Thread.currentThread().join();
     }

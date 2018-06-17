@@ -15,14 +15,50 @@
  */
 package proteus.example.service.vowelcount;
 
+import io.netifi.proteus.rsocket.ProteusSocket;
 import io.netty.buffer.ByteBuf;
 import org.reactivestreams.Publisher;
+import proteus.example.service.isvowel.IsVowelRequest;
+import proteus.example.service.isvowel.IsVowelResponse;
+import proteus.example.service.isvowel.IsVowelServiceClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 public class DefaultVowelCountService implements VowelCountService {
+
+    private final AtomicLong totalVowels = new AtomicLong(0);
+    private final IsVowelServiceClient isVowelClient;
+
+    public DefaultVowelCountService(final ProteusSocket isVowelConn) {
+        this.isVowelClient = new IsVowelServiceClient(isVowelConn);
+    }
     
     @Override
     public Flux<VowelCountResponse> countVowels(Publisher<VowelCountRequest> messages, ByteBuf metadata) {
-        return null;
+        return Flux.from(
+                Flux.from(messages)
+                    .onBackpressureBuffer()
+                    .flatMap(vowelCountRequest -> Flux.just(vowelCountRequest.getMessage().split("(?<!^)")))
+                    .flatMap((Function<String, Mono<? extends IsVowelResponse>>) s -> {
+                        IsVowelRequest isVowelRequest = IsVowelRequest.newBuilder()
+                                .setCharacter(s)
+                                .build();
+
+                        return isVowelClient.isVowel(isVowelRequest);
+                    })
+                    .map(isVowelResponse -> {
+                        if (isVowelResponse.getIsVowel()) {
+                            totalVowels.incrementAndGet();
+                        }
+
+                        return totalVowels.get();
+                    })
+                    .last()
+        ).map(totalVowelCount -> VowelCountResponse.newBuilder()
+                .setVowelCnt(totalVowelCount)
+                .build());
     }
 }
