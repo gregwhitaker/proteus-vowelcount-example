@@ -41,7 +41,9 @@ public class DefaultVowelCountService implements VowelCountService {
         return Flux.from(
                 Flux.from(messages)
                     .onBackpressureBuffer()
+                    // Split incoming message into stream of individual characters
                     .flatMap(vowelCountRequest -> Flux.just(vowelCountRequest.getMessage().split("(?<!^)")))
+                    // Send each character to the IsVowel service for classification
                     .flatMap((Function<String, Mono<? extends IsVowelResponse>>) s -> {
                         IsVowelRequest isVowelRequest = IsVowelRequest.newBuilder()
                                 .setCharacter(s)
@@ -49,6 +51,7 @@ public class DefaultVowelCountService implements VowelCountService {
 
                         return isVowelClient.isVowel(isVowelRequest);
                     })
+                    // Increment vowel counter if vowel is found by IsVowel service
                     .map(isVowelResponse -> {
                         if (isVowelResponse.getIsVowel()) {
                             totalVowels.incrementAndGet();
@@ -56,6 +59,7 @@ public class DefaultVowelCountService implements VowelCountService {
 
                         return totalVowels.get();
                     })
+                    // Return the total vowel count once all characters are processed
                     .last()
         ).map(totalVowelCount -> VowelCountResponse.newBuilder()
                 .setVowelCnt(totalVowelCount)
