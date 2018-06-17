@@ -23,10 +23,10 @@ public class Main {
 
     public static void main(String... args) throws Exception {
         // Creating a name for the service
-        String destination = "isvowel-" + UUID.randomUUID().toString();
+        final String destination = "isvowel-" + UUID.randomUUID().toString();
 
         // Define connection to the Proteus Broker
-        Proteus proteus = Proteus.builder()
+        final Proteus proteus = Proteus.builder()
                 .group("proteus.example.service.isvowel")
                 .destination(destination)
                 .accessKey(7685465987873703191L)

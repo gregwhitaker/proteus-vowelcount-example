@@ -15,9 +15,29 @@
  */
 package proteus.example.service.vowelcount;
 
+import io.netifi.proteus.Proteus;
+
+import java.util.UUID;
+
 public class Main {
 
-    public static void main(String... args) {
+    public static void main(String... args) throws Exception {
+        // Creating a name for the service
+        final String destination = "vowelcount-" + UUID.randomUUID().toString();
 
+        // Define connection to the Proteus Broker
+        final Proteus proteus = Proteus.builder()
+                .group("proteus.example.service.vowelcount")
+                .destination(destination)
+                .accessKey(7685465987873703191L)
+                .accessToken("")
+                .host("localhost")
+                .port(8001)
+                .build();
+
+        // Start the VowelCount Service
+        proteus.addService(new VowelCountServiceServer(new DefaultVowelCountService()));
+
+        Thread.currentThread().join();
     }
 }
