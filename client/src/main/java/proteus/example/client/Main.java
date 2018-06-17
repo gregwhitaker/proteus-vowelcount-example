@@ -44,6 +44,7 @@ public class Main {
                 .port(8001)                         // Proteus Broker's port
                 .build();
 
+        // Create virtual connection to the VowelCount service group
         ProteusSocket conn = proteus.group("proteus.example.service.vowelcount");
 
         CountDownLatch latch = new CountDownLatch(100);
