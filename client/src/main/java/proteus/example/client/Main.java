@@ -59,7 +59,7 @@ public class Main {
                     }
                 }))
                 .onBackpressureDrop()
-                .map(payload -> {
+                .doOnNext(payload -> {
                     // Receive response from vowelcount service with the total number of vowels counted
                     try {
                         VowelCountResponse response = VowelCountResponse.parseFrom(payload.getData());
@@ -69,8 +69,6 @@ public class Main {
                     } finally {
                         latch.countDown();
                     }
-
-                    return null;
                 })
                 .subscribe();
 
