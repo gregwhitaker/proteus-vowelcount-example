@@ -40,6 +40,8 @@ public class DefaultVowelCountService implements VowelCountService {
     public Flux<VowelCountResponse> countVowels(Publisher<VowelCountRequest> messages, ByteBuf metadata) {
         return Flux.from(
                 Flux.from(messages)
+                    // If client is sending more data than the service can handle buffer it
+                    .onBackpressureBuffer()
                     // Split incoming message into stream of individual characters
                     .flatMap(vowelCountRequest -> Flux.just(vowelCountRequest.getMessage().split("(?<!^)")))
                     // Send each character to the IsVowel service for classification

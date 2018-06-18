@@ -22,6 +22,9 @@ import java.util.UUID;
 public class Main {
 
     public static void main(String... args) throws Exception {
+        Long accessKey = getAccessKeyFromArgs(args);
+        String accessToken = getAccessTokenFromArgs(args);
+
         // Creating a name for the service
         final String destination = "isvowel-" + UUID.randomUUID().toString();
 
@@ -29,8 +32,8 @@ public class Main {
         final Proteus proteus = Proteus.builder()
                 .group("proteus.example.service.isvowel")   // Name of this service's group
                 .destination(destination)                   // Name of this service instance
-                .accessKey(7685465987873703191L)            // Access key for connecting to Proteus Broker
-                .accessToken("")                            // Access token for connecting to Proteus Broker
+                .accessKey(accessKey)                       // Access key for connecting to Proteus Broker
+                .accessToken(accessToken)                   // Access token for connecting to Proteus Broker
                 .host("localhost")                          // Proteus Broker's host
                 .port(8001)                                 // Proteus Broker's port
                 .build();
@@ -39,5 +42,33 @@ public class Main {
         proteus.addService(new IsVowelServiceServer(new DefaultIsVowelService()));
 
         Thread.currentThread().join();
+    }
+
+    /**
+     * Gets the access key to use for the demo from the command line arguments.
+     *
+     * @param args command line arguments
+     * @return access key
+     */
+    private static Long getAccessKeyFromArgs(String... args) {
+        if (args.length != 2) {
+            throw new IllegalArgumentException("Invalid number of arguments");
+        }
+
+        return Long.parseLong(args[0]);
+    }
+
+    /**
+     * Gets the access token to use for the demo from the command line arguments.
+     *
+     * @param args command line arguments
+     * @return access token
+     */
+    private static String getAccessTokenFromArgs(String... args) {
+        if (args.length != 2) {
+            throw new IllegalArgumentException("Invalid number of arguments");
+        }
+
+        return args[1];
     }
 }
