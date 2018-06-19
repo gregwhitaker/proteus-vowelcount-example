@@ -68,6 +68,7 @@ public class Main {
                             .build();
 
                     s.onNext(request);
+                    latch.countDown();
                 }
             }
 
