@@ -19,11 +19,15 @@ import io.netifi.proteus.Proteus;
 import io.netifi.proteus.rsocket.ProteusSocket;
 import org.reactivestreams.Subscription;
 import proteus.example.service.vowelcount.VowelCountRequest;
+import proteus.example.service.vowelcount.VowelCountResponse;
 import proteus.example.service.vowelcount.VowelCountServiceClient;
+import reactor.core.publisher.Flux;
 
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Client that sends random strings to the VowelCount service to have the number
@@ -58,11 +62,13 @@ public class Main {
         client.countVowels(s -> s.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {
-                VowelCountRequest request = VowelCountRequest.newBuilder()
-                        .setMessage(RandomString.next(10, ThreadLocalRandom.current()))
-                        .build();
+                for (int i = 1; i <= n; i++) {
+                    VowelCountRequest request = VowelCountRequest.newBuilder()
+                            .setMessage(RandomString.next(10, ThreadLocalRandom.current()))
+                            .build();
 
-                s.onNext(request);
+                    s.onNext(request);
+                }
             }
 
             @Override
@@ -74,12 +80,11 @@ public class Main {
             }
         }))
         .onBackpressureDrop()
-        .doOnNext(response -> {
+        .subscribe(response -> {
             // Receive response from vowelcount service with the total number of vowels counted
             System.out.println("Total Vowels Counted: " + response.getVowelCnt());
             latch.countDown();
-        })
-        .subscribe();
+        });
 
         latch.await();
     }

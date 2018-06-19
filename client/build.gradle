@@ -11,3 +11,9 @@ dependencies {
 
     compile "io.netifi.proteus:client:${proteusVersion}"
 }
+
+run {
+    if (project.hasProperty("appArgs")) {
+        args Eval.me(appArgs)
+    }
+}

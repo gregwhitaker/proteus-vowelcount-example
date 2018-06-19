@@ -29,3 +29,9 @@ allprojects {
         strictCheck true
     }
 }
+
+// Start the demo with the following command:
+// $ ./gradlew runDemo -PappArgs="['{accessKey}', '{accessToken}']"
+task runDemo(type: Exec) {
+    finalizedBy('vowelcount-service:run', 'isvowel-service:run', 'client:run')
+}
