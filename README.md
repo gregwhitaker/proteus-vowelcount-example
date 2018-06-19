@@ -1,5 +1,7 @@
 # proteus-vowelcount-example
 
+![diagram](diagram.png)
+
 ## License
 Copyright 2018 Greg Whitaker
 
