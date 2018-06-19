@@ -1,25 +1,41 @@
-package proteus.example.service.vowelcount;
+package proteus.example.service.vowelcount.blocking;
 
 @javax.annotation.Generated(
     value = "by Proteus proto compiler (version 0.7.13)",
     comments = "Source: vowelcount.proto")
 public final class VowelCountServiceServer extends io.netifi.proteus.AbstractProteusService {
   private final VowelCountService service;
+  private final reactor.core.scheduler.Scheduler scheduler;
   private final java.util.function.Function<? super org.reactivestreams.Publisher<io.rsocket.Payload>, ? extends org.reactivestreams.Publisher<io.rsocket.Payload>> countVowels;
 
+  public VowelCountServiceServer(VowelCountService service, reactor.core.scheduler.Scheduler scheduler) {
+    this.scheduler = scheduler;
+    this.service = service;
+    this.countVowels = java.util.function.Function.identity();
+  }
+
+
   public VowelCountServiceServer(VowelCountService service) {
+    this.scheduler = reactor.core.scheduler.Schedulers.elastic();
     this.service = service;
     this.countVowels = java.util.function.Function.identity();
   }
 
   public VowelCountServiceServer(VowelCountService service, io.micrometer.core.instrument.MeterRegistry registry) {
+    this.scheduler = reactor.core.scheduler.Schedulers.elastic();
     this.service = service;
-    this.countVowels = io.netifi.proteus.metrics.ProteusMetrics.timed(registry, "proteus.server", "service", VowelCountService.SERVICE, "method", VowelCountService.METHOD_COUNT_VOWELS);
+    this.countVowels = io.netifi.proteus.metrics.ProteusMetrics.timed(registry, "proteus.server", "namespace", "proteus.example.service.vowelcount.blocking", "service", "VowelCountService", "method", "countVowels");
+  }
+
+  public VowelCountServiceServer(VowelCountService service, reactor.core.scheduler.Scheduler scheduler, io.micrometer.core.instrument.MeterRegistry registry) {
+    this.scheduler = scheduler;
+    this.service = service;
+    this.countVowels = io.netifi.proteus.metrics.ProteusMetrics.timed(registry, "proteus.server", "namespace", "proteus.example.service.vowelcount.blocking", "service", "VowelCountService", "method", "countVowels");
   }
 
   @java.lang.Override
   public String getService() {
-    return VowelCountService.SERVICE;
+    return VowelCountService.SERVICE_ID;
   }
 
   @java.lang.Override
@@ -45,7 +61,7 @@ public final class VowelCountServiceServer extends io.netifi.proteus.AbstractPro
         case VowelCountService.METHOD_COUNT_VOWELS: {
           reactor.core.publisher.Flux<proteus.example.service.vowelcount.VowelCountRequest> messages =
             publisher.map(deserializer(proteus.example.service.vowelcount.VowelCountRequest.parser()));
-          return service.countVowels(messages, metadata).map(serializer).transform(countVowels);
+          return reactor.core.publisher.Flux.defer(() -> reactor.core.publisher.Flux.fromIterable(service.countVowels(messages.toIterable(), metadata)).map(serializer).transform(countVowels)).subscribeOn(scheduler);
         }
         default: {
           return reactor.core.publisher.Flux.error(new UnsupportedOperationException());

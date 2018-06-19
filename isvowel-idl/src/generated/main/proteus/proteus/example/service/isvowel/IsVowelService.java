@@ -3,12 +3,11 @@ package proteus.example.service.isvowel;
 /**
  */
 @javax.annotation.Generated(
-    value = "by Proteus proto compiler (version 0.7.1)",
+    value = "by Proteus proto compiler (version 0.7.13)",
     comments = "Source: isvowel.proto")
 public interface IsVowelService {
-  int NAMESPACE_ID = -745758071;
-  int SERVICE_ID = -122448787;
-  int METHOD_IS_VOWEL = 805157322;
+  String SERVICE = "proteus.example.service.isvowel.IsVowelService";
+  String METHOD_IS_VOWEL = "IsVowel";
 
   /**
    */

@@ -1,7 +1,7 @@
 package proteus.example.service.isvowel;
 
 @javax.annotation.Generated(
-    value = "by Proteus proto compiler (version 0.7.1)",
+    value = "by Proteus proto compiler (version 0.7.13)",
     comments = "Source: isvowel.proto")
 public final class IsVowelServiceClient implements IsVowelService {
   private final io.rsocket.RSocket rSocket;
@@ -14,7 +14,7 @@ public final class IsVowelServiceClient implements IsVowelService {
 
   public IsVowelServiceClient(io.rsocket.RSocket rSocket, io.micrometer.core.instrument.MeterRegistry registry) {
     this.rSocket = rSocket;
-    this.isVowel = io.netifi.proteus.metrics.ProteusMetrics.timed(registry, "proteus.client", "namespace", "proteus.example.service.isvowel", "service", "IsVowelService", "method", "isVowel");
+    this.isVowel = io.netifi.proteus.metrics.ProteusMetrics.timed(registry, "proteus.client", "service", IsVowelService.SERVICE, "method", IsVowelService.METHOD_IS_VOWEL);
   }
 
   public reactor.core.publisher.Mono<proteus.example.service.isvowel.IsVowelResponse> isVowel(proteus.example.service.isvowel.IsVowelRequest message) {
@@ -26,7 +26,7 @@ public final class IsVowelServiceClient implements IsVowelService {
     return reactor.core.publisher.Mono.defer(new java.util.function.Supplier<reactor.core.publisher.Mono<io.rsocket.Payload>>() {
       @java.lang.Override
       public reactor.core.publisher.Mono<io.rsocket.Payload> get() {
-        final io.netty.buffer.ByteBuf metadataBuf = io.netifi.proteus.frames.ProteusMetadata.encode(io.netty.buffer.ByteBufAllocator.DEFAULT, IsVowelService.NAMESPACE_ID, IsVowelService.SERVICE_ID, IsVowelService.METHOD_IS_VOWEL, metadata);
+        final io.netty.buffer.ByteBuf metadataBuf = io.netifi.proteus.frames.ProteusMetadata.encode(io.netty.buffer.ByteBufAllocator.DEFAULT, IsVowelService.SERVICE, IsVowelService.METHOD_IS_VOWEL, metadata);
         io.netty.buffer.ByteBuf data = serialize(message);
         return rSocket.requestResponse(io.rsocket.util.ByteBufPayload.create(data, metadataBuf));
       }

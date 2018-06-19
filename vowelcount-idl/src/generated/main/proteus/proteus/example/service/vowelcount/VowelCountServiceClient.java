@@ -1,7 +1,7 @@
 package proteus.example.service.vowelcount;
 
 @javax.annotation.Generated(
-    value = "by Proteus proto compiler (version 0.7.1)",
+    value = "by Proteus proto compiler (version 0.7.13)",
     comments = "Source: vowelcount.proto")
 public final class VowelCountServiceClient implements VowelCountService {
   private final io.rsocket.RSocket rSocket;
@@ -14,7 +14,7 @@ public final class VowelCountServiceClient implements VowelCountService {
 
   public VowelCountServiceClient(io.rsocket.RSocket rSocket, io.micrometer.core.instrument.MeterRegistry registry) {
     this.rSocket = rSocket;
-    this.countVowels = io.netifi.proteus.metrics.ProteusMetrics.timed(registry, "proteus.client", "namespace", "proteus.example.service.vowelcount", "service", "VowelCountService", "method", "countVowels");
+    this.countVowels = io.netifi.proteus.metrics.ProteusMetrics.timed(registry, "proteus.client", "service", VowelCountService.SERVICE, "method", VowelCountService.METHOD_COUNT_VOWELS);
   }
 
   public reactor.core.publisher.Flux<proteus.example.service.vowelcount.VowelCountResponse> countVowels(org.reactivestreams.Publisher<proteus.example.service.vowelcount.VowelCountRequest> messages) {
@@ -31,7 +31,7 @@ public final class VowelCountServiceClient implements VowelCountService {
         public io.rsocket.Payload apply(com.google.protobuf.MessageLite message) {
           io.netty.buffer.ByteBuf data = serialize(message);
           if (once.compareAndSet(false, true)) {
-            final io.netty.buffer.ByteBuf metadataBuf = io.netifi.proteus.frames.ProteusMetadata.encode(io.netty.buffer.ByteBufAllocator.DEFAULT, VowelCountService.NAMESPACE_ID, VowelCountService.SERVICE_ID, VowelCountService.METHOD_COUNT_VOWELS, metadata);
+            final io.netty.buffer.ByteBuf metadataBuf = io.netifi.proteus.frames.ProteusMetadata.encode(io.netty.buffer.ByteBufAllocator.DEFAULT, VowelCountService.SERVICE, VowelCountService.METHOD_COUNT_VOWELS, metadata);
             return io.rsocket.util.ByteBufPayload.create(data, metadataBuf);
           } else {
             return io.rsocket.util.ByteBufPayload.create(data);
