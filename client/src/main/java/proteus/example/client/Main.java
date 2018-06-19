@@ -19,15 +19,11 @@ import io.netifi.proteus.Proteus;
 import io.netifi.proteus.rsocket.ProteusSocket;
 import org.reactivestreams.Subscription;
 import proteus.example.service.vowelcount.VowelCountRequest;
-import proteus.example.service.vowelcount.VowelCountResponse;
 import proteus.example.service.vowelcount.VowelCountServiceClient;
-import reactor.core.publisher.Flux;
 
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Client that sends random strings to the VowelCount service to have the number
