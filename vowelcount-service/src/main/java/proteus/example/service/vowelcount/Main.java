@@ -18,21 +18,16 @@ package proteus.example.service.vowelcount;
 import io.netifi.proteus.Proteus;
 import io.netifi.proteus.rsocket.ProteusSocket;
 
-import java.util.UUID;
-
 public class Main {
 
     public static void main(String... args) throws Exception {
         Long accessKey = getAccessKeyFromArgs(args);
         String accessToken = getAccessTokenFromArgs(args);
 
-        // Creating a name for the service
-        final String destination = "vowelcount-" + UUID.randomUUID().toString();
-
         // Define connection to the Proteus Broker
         final Proteus proteus = Proteus.builder()
                 .group("proteus.example.service.vowelcount")    // Name of this service's group
-                .destination(destination)                       // Name of this service instance
+                .destination("vowelcount")                      // Name of this service instance
                 .accessKey(accessKey)                           // Access key for connecting to the Proteus Broker
                 .accessToken(accessToken)                       // Access token for connecting to the Proteus Broker
                 .host("localhost")                              // Proteus Broker's host

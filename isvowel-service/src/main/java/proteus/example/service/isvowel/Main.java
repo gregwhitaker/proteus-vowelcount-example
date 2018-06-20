@@ -17,21 +17,16 @@ package proteus.example.service.isvowel;
 
 import io.netifi.proteus.Proteus;
 
-import java.util.UUID;
-
 public class Main {
 
     public static void main(String... args) throws Exception {
         Long accessKey = getAccessKeyFromArgs(args);
         String accessToken = getAccessTokenFromArgs(args);
 
-        // Creating a name for the service
-        final String destination = "isvowel-" + UUID.randomUUID().toString();
-
         // Define connection to the Proteus Broker
         final Proteus proteus = Proteus.builder()
                 .group("proteus.example.service.isvowel")   // Name of this service's group
-                .destination(destination)                   // Name of this service instance
+                .destination("isvowel")                     // Name of this service instance
                 .accessKey(accessKey)                       // Access key for connecting to Proteus Broker
                 .accessToken(accessToken)                   // Access token for connecting to Proteus Broker
                 .host("localhost")                          // Proteus Broker's host

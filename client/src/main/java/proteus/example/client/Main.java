@@ -21,7 +21,6 @@ import org.reactivestreams.Subscription;
 import proteus.example.service.vowelcount.VowelCountRequest;
 import proteus.example.service.vowelcount.VowelCountServiceClient;
 
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -35,13 +34,10 @@ public class Main {
         Long accessKey = getAccessKeyFromArgs(args);
         String accessToken = getAccessTokenFromArgs(args);
 
-        // Creating a name for the client
-        final String destination = "democlient-" + UUID.randomUUID().toString();
-
         // Define connection to the Proteus Broker
         final Proteus proteus = Proteus.builder()
                 .group("proteus.example.client")    // Name of this client's group
-                .destination(destination)           // Name of this client
+                .destination("democlient")          // Name of this client
                 .accessKey(accessKey)               // Access key for connecting to Proteus Broker
                 .accessToken(accessToken)           // Access token for connecting to Proteus Broker
                 .host("localhost")                  // Proteus Broker's host
@@ -76,7 +72,6 @@ public class Main {
                 }
             }
         }))
-        .onBackpressureDrop()
         .subscribe(response -> {
             // Receive response from vowelcount service with the total number of vowels counted
             System.out.println("Total Vowels Counted: " + response.getVowelCnt());
