@@ -20,6 +20,8 @@ import javafx.geometry.VPos;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
 import reactor.core.publisher.SignalType;
@@ -33,6 +35,7 @@ import java.util.function.Supplier;
  * Service that determines whether or not a character is a vowel.
  */
 public class DefaultIsVowelService implements IsVowelService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultIsVowelService.class);
 
     private final Set<String> VOWELS = new HashSet<>();
 
@@ -46,8 +49,12 @@ public class DefaultIsVowelService implements IsVowelService {
 
     @Override
     public Mono<IsVowelResponse> isVowel(IsVowelRequest message, ByteBuf metadata) {
-        return Mono.fromSupplier(() -> IsVowelResponse.newBuilder()
+        return Mono.fromSupplier(() -> {
+            LOGGER.info("Received character: {}", message.getCharacter());
+
+            return IsVowelResponse.newBuilder()
                 .setIsVowel(VOWELS.contains(message.getCharacter()))
-                .build());
+                .build();
+        });
     }
 }

@@ -18,8 +18,12 @@ package proteus.example.client;
 import io.netifi.proteus.Proteus;
 import io.netifi.proteus.rsocket.ProteusSocket;
 import org.reactivestreams.Subscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import proteus.example.service.vowelcount.VowelCountRequest;
 import proteus.example.service.vowelcount.VowelCountServiceClient;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,6 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * of vowels in the string tallied.
  */
 public class Main {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static void main(String... args) throws Exception {
         Long accessKey = getAccessKeyFromArgs(args);
@@ -59,22 +64,27 @@ public class Main {
                             .setMessage(RandomString.next(10, ThreadLocalRandom.current()))
                             .build();
 
+                    LOGGER.info("Sending String to VowelCount: {}", request.getMessage());
+
                     s.onNext(request);
-                    latch.countDown();
                 }
             }
 
             @Override
             public void cancel() {
+                LOGGER.info("Received Cancel Event From VowelCount");
+
                 // Aborting the latch early because the subscriber cancelled the request
                 while(latch.getCount() > 0) {
                     latch.countDown();
                 }
             }
         }))
+        .subscribeOn(Schedulers.elastic())
         .subscribe(response -> {
             // Receive response from vowelcount service with the total number of vowels counted
-            System.out.println("Total Vowels Counted: " + response.getVowelCnt());
+            LOGGER.info("Total Vowels Counted: {}", response.getVowelCnt());
+
             latch.countDown();
         });
 
