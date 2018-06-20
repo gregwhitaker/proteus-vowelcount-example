@@ -53,7 +53,7 @@ public class Main {
         ProteusSocket conn = proteus.group("proteus.example.service.vowelcount");
 
         int numToSend = 100;
-        CountDownLatch latch = new CountDownLatch(numToSend * 10);
+        CountDownLatch latch = new CountDownLatch(1);
 
         // Send a stream of random strings, load-balanced across all instances, to VowelCount service for processing.
         VowelCountServiceClient client = new VowelCountServiceClient(conn);
@@ -69,6 +69,8 @@ public class Main {
 
                     s.onNext(request);
                 }
+
+                s.onComplete();
             }
 
             @Override
@@ -81,12 +83,11 @@ public class Main {
                 }
             }
         }))
+        .doOnComplete(latch::countDown)
         .subscribeOn(Schedulers.elastic())
         .subscribe(response -> {
             // Receive response from vowelcount service with the total number of vowels counted
             LOGGER.info("Total Vowels Counted: {}", response.getVowelCnt());
-
-            latch.countDown();
         });
 
         latch.await();
