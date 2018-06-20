@@ -67,8 +67,12 @@ public class DefaultVowelCountService implements VowelCountService {
 
                     return totalVowels.get();
                 })
-                .map(vcnt -> VowelCountResponse.newBuilder()
+                .map(vcnt -> {
+                    LOGGER.info("Sending total vowel count: {}", vcnt);
+
+                    return VowelCountResponse.newBuilder()
                         .setVowelCnt(vcnt)
-                        .build());
+                        .build();
+                });
     }
 }

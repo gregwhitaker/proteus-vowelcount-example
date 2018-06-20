@@ -52,14 +52,15 @@ public class Main {
         // Create virtual connection to the VowelCount service group
         ProteusSocket conn = proteus.group("proteus.example.service.vowelcount");
 
-        CountDownLatch latch = new CountDownLatch(100);
+        int numToSend = 100;
+        CountDownLatch latch = new CountDownLatch(numToSend * 10);
 
         // Send a stream of random strings, load-balanced across all instances, to VowelCount service for processing.
         VowelCountServiceClient client = new VowelCountServiceClient(conn);
         client.countVowels(s -> s.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {
-                for (int i = 1; i <= n; i++) {
+                for (int i = 1; i <= numToSend; i++) {
                     VowelCountRequest request = VowelCountRequest.newBuilder()
                             .setMessage(RandomString.next(10, ThreadLocalRandom.current()))
                             .build();
