@@ -28,7 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Client that sends random strings to the VowelCount service to have the number
- * of vowels in the string tallied.
+ * of vowels in the string counted.
  */
 public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);

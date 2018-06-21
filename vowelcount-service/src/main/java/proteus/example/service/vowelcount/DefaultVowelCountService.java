@@ -26,6 +26,10 @@ import reactor.core.publisher.Flux;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
+/**
+ * Service that receives a stream of random strings, counts the vowels in them using a separate IsVowel microservice, and
+ * streams back the total count of vowels discovered every time it changes.
+ */
 public class DefaultVowelCountService implements VowelCountService {
     private final AtomicLong totalVowels = new AtomicLong(0);
     private final IsVowelServiceClient isVowelClient;
