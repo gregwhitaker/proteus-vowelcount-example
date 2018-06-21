@@ -1,13 +1,19 @@
 # proteus-vowelcount-example
 An example of how easy it is to orchestrate interactions between multiple microservices with [Netifi Proteus](https://www.netifi.com).
 
+The example works as follows:
+
+1. The client generates random alphabetic strings.
+2. The client streams the randomly generated strings to the vowelcount microservice over a bidirectional channel.
+3. The vowel counting service splits the incoming strings into a stream of individual characters which it then sends one by one to the isvowel microservice using request/reply semantics.
+
 ![diagram](diagram.png)
 
 ## Prerequisites
 This example requires a running Proteus Broker.
 
 ## Running the Example
-TBD
+TODO
 
 ## Bugs and Feedback
 For bugs, questions, and discussions please use the [Github Issues](https://github.com/gregwhitaker/proteus-vowelcount-example/issues).
