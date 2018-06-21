@@ -1,7 +1,16 @@
 # proteus-vowelcount-example
-This is a work in progress.
+An example of how easy it is to orchestrate interactions between multiple microservices with [Netifi Proteus](https://www.netifi.com).
 
 ![diagram](diagram.png)
+
+## Prerequisites
+This example requires a running Proteus Broker.
+
+## Running the Example
+TBD
+
+## Bugs and Feedback
+For bugs, questions, and discussions please use the [Github Issues](https://github.com/gregwhitaker/proteus-vowelcount-example/issues).
 
 ## License
 Copyright 2018 Greg Whitaker
