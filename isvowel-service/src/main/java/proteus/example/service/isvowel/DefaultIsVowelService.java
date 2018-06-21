@@ -16,20 +16,12 @@
 package proteus.example.service.isvowel;
 
 import io.netty.buffer.ByteBuf;
-import javafx.geometry.VPos;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Signal;
-import reactor.core.publisher.SignalType;
-import reactor.util.context.Context;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * Service that determines whether or not a character is a vowel.

@@ -17,13 +17,11 @@ package proteus.example.client;
 
 import io.netifi.proteus.Proteus;
 import io.netifi.proteus.rsocket.ProteusSocket;
-import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proteus.example.service.vowelcount.VowelCountRequest;
 import proteus.example.service.vowelcount.VowelCountServiceClient;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
+import reactor.core.publisher.Flux;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
@@ -52,43 +50,22 @@ public class Main {
         // Create virtual connection to the VowelCount service group
         ProteusSocket conn = proteus.group("proteus.example.service.vowelcount");
 
-        int numToSend = 100;
         CountDownLatch latch = new CountDownLatch(1);
 
-        // Send a stream of random strings, load-balanced across all instances, to VowelCount service for processing.
+        // Generate stream of random strings
+        Flux<VowelCountRequest> requests = Flux.range(1, 100)
+                .map(cnt -> VowelCountRequest.newBuilder()
+                        .setMessage(RandomString.next(10, ThreadLocalRandom.current()))
+                        .build());
+
+        // Send stream of random strings to vowel count service
         VowelCountServiceClient client = new VowelCountServiceClient(conn);
-        client.countVowels(s -> s.onSubscribe(new Subscription() {
-            @Override
-            public void request(long n) {
-                for (int i = 1; i <= numToSend; i++) {
-                    VowelCountRequest request = VowelCountRequest.newBuilder()
-                            .setMessage(RandomString.next(10, ThreadLocalRandom.current()))
-                            .build();
-
-                    LOGGER.info("Sending String to VowelCount: {}", request.getMessage());
-
-                    s.onNext(request);
-                }
-
-                s.onComplete();
-            }
-
-            @Override
-            public void cancel() {
-                LOGGER.info("Received Cancel Event From VowelCount");
-
-                // Aborting the latch early because the subscriber cancelled the request
-                while(latch.getCount() > 0) {
-                    latch.countDown();
-                }
-            }
-        }))
-        .doOnComplete(latch::countDown)
-        .subscribeOn(Schedulers.elastic())
-        .subscribe(response -> {
-            // Receive response from vowelcount service with the total number of vowels counted
-            LOGGER.info("Total Vowels Counted: {}", response.getVowelCnt());
-        });
+        client.countVowels(requests)
+                .onBackpressureDrop()
+                .doOnComplete(latch::countDown)
+                .subscribe(response -> {
+                    LOGGER.info("Total Vowels: {}", response.getVowelCnt());
+                });
 
         latch.await();
     }

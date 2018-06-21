@@ -18,21 +18,15 @@ package proteus.example.service.vowelcount;
 import io.netifi.proteus.rsocket.ProteusSocket;
 import io.netty.buffer.ByteBuf;
 import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import proteus.example.service.isvowel.IsVowelRequest;
 import proteus.example.service.isvowel.IsVowelResponse;
 import proteus.example.service.isvowel.IsVowelServiceClient;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 public class DefaultVowelCountService implements VowelCountService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultVowelCountService.class);
-
     private final AtomicLong totalVowels = new AtomicLong(0);
     private final IsVowelServiceClient isVowelClient;
 
@@ -42,37 +36,25 @@ public class DefaultVowelCountService implements VowelCountService {
     
     @Override
     public Flux<VowelCountResponse> countVowels(Publisher<VowelCountRequest> messages, ByteBuf metadata) {
-        return Flux.from(messages)
-                .subscribeOn(Schedulers.elastic())
-                // If client is sending more data than the service can handle buffer it
-                .onBackpressureBuffer()
-                // Split incoming message into stream of individual characters
-                .flatMap(vowelCountRequest -> Flux.just(vowelCountRequest.getMessage().split("(?<!^)")))
-                // Send each character to the IsVowel service for classification
-                .flatMap((Function<String, Mono<? extends IsVowelResponse>>) s -> {
-                    IsVowelRequest isVowelRequest = IsVowelRequest.newBuilder()
-                            .setCharacter(s)
-                            .build();
-
-                    LOGGER.info("Sending character to IsVowel: {}", isVowelRequest.getCharacter());
-
-                    return isVowelClient.isVowel(isVowelRequest);
-                })
-                // Increment vowel counter if vowel is found by IsVowel service
-                .map(isVowelResponse -> {
-                    if (isVowelResponse.getIsVowel()) {
-                        LOGGER.info("Found vowel, incrementing total vowel count");
-                        totalVowels.incrementAndGet();
-                    }
-
-                    return totalVowels.get();
-                })
-                .map(vcnt -> {
-                    LOGGER.info("Sending total vowel count: {}", vcnt);
-
-                    return VowelCountResponse.newBuilder()
-                        .setVowelCnt(vcnt)
-                        .build();
-                });
+        return Flux.from(s ->
+                Flux.from(messages)
+                    // Split each incoming random string into a stream of individual characters
+                    .flatMap(vowelCountRequest -> Flux.just(vowelCountRequest.getMessage().split("(?<!^)")))
+                    // For each individual character create an IsVowelRequest
+                    .map(c -> IsVowelRequest.newBuilder().setCharacter(c).build())
+                    // Send each IsVowelRequest to the IsVowel service
+                    .flatMap((Function<IsVowelRequest, Publisher<IsVowelResponse>>) isVowelClient::isVowel)
+                    .doOnNext(isVowelResponse -> {
+                        if (isVowelResponse.getIsVowel()) {
+                            // For every vowel found by the IsVowel service, increment the vowel count and send the
+                            // current vowel count to the client
+                            s.onNext(VowelCountResponse.newBuilder()
+                                    .setVowelCnt(totalVowels.incrementAndGet())
+                                    .build());
+                        }
+                    })
+                    .doOnComplete(s::onComplete)
+                    .subscribe()
+        );
     }
 }
