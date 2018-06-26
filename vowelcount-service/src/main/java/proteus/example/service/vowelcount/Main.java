@@ -18,6 +18,8 @@ package proteus.example.service.vowelcount;
 import io.netifi.proteus.Proteus;
 import io.netifi.proteus.rsocket.ProteusSocket;
 
+import java.util.Optional;
+
 public class Main {
 
     public static void main(String... args) throws Exception {
@@ -38,7 +40,7 @@ public class Main {
         ProteusSocket isVowelConn = proteus.group("proteus.example.service.isvowel");
 
         // Start the VowelCount Service
-        proteus.addService(new VowelCountServiceServer(new DefaultVowelCountService(isVowelConn)));
+        proteus.addService(new VowelCountServiceServer(new DefaultVowelCountService(isVowelConn), Optional.empty()));
 
         Thread.currentThread().join();
     }

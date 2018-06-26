@@ -17,6 +17,8 @@ package proteus.example.service.isvowel;
 
 import io.netifi.proteus.Proteus;
 
+import java.util.Optional;
+
 public class Main {
 
     public static void main(String... args) throws Exception {
@@ -34,7 +36,7 @@ public class Main {
                 .build();
 
         // Start the IsVowel Service
-        proteus.addService(new IsVowelServiceServer(new DefaultIsVowelService()));
+        proteus.addService(new IsVowelServiceServer(new DefaultIsVowelService(), Optional.empty()));
 
         Thread.currentThread().join();
     }
