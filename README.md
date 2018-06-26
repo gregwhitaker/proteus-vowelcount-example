@@ -1,4 +1,6 @@
 # proteus-vowelcount-example
+[![Build Status](https://travis-ci.org/gregwhitaker/proteus-vowelcount-example.svg?branch=master)](https://travis-ci.org/gregwhitaker/proteus-vowelcount-example)
+
 An example of how easy it is to orchestrate interactions between multiple microservices with [Netifi Proteus](https://www.netifi.com).
 
 The example works as follows:
